@@ -1,18 +1,10 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-import { generateToken } from '../utils/tokenUtils.js';
+import { generateToken, transporter } from '../utils/tokenUtils.js';
 import dotenv from 'dotenv'
 
 dotenv.config(); // Loads environmental variables
-// declaring constant to mail transfer instants
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+
 // function to handle register user
 export const registerUser = async (req, res) => {
   const { email, firstName, lastName, password } = req.body;
@@ -23,7 +15,7 @@ export const registerUser = async (req, res) => {
     const url = `https://shortenurlft.netlify.app/auth/activate/${token}`;
     
     // Store token in database (or a better method might be using Redis)
-    await user.updateOne({ $set: { token: token } });
+    await user.updateOne({ $set: { token } });
 
     await transporter.sendMail({
       to: email,
@@ -44,8 +36,28 @@ export const activateUser = async (req, res) => {
   try {
     const user = await User.findOne({ token });
     if (!user) return res.status(400).json({ message: 'Invalid token' });
-    await user.updateOne({ $set: { isActive: true }, $set: { token: null } });
-    res.status(200).json({ message: 'Account activated. You can now login.' });
+    await user.updateOne({ $set: { isActive: true }, $unset: { token: 1 } });
+    //res.status(200).json({ message: 'Account activated. You can now login.' });
+    res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Account Activated</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+              .container { border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
+              h1 { color: #4CAF50; }
+              p { color: #555; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Account Activated!</h1>
+              <p>You can now <a href="/login">login</a> to your account.</p>
+            </div>
+          </body>
+        </html>
+      `);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -74,7 +86,7 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'Email not found' });
     
     const token = generateToken();
-    const url = `https://shortenurlft.netlify.app/auth/reset-password/${token}`;
+    const url = `http://localhost:5000/auth/reset-password/${token}`;
     
     // Store token in database (or use Redis)
     await user.updateOne({ $set: { resetPasswordToken: token } });
@@ -99,7 +111,7 @@ export const resetPassword = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'Invalid token' });
     
     user.password = newPassword;
-    user.resetPasswordToken = null;
+    user.resetPasswordToken = undefined;
     await user.save();
     
     res.status(200).json({ message: 'Password updated successfully' });
