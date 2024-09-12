@@ -12,7 +12,7 @@ export const registerUser = async (req, res) => {
     const token = generateToken();
     const user = await User.create({ email, firstName, lastName, password });
     
-    const url = `http://localhost:5000/auth/activate/${token}`;
+    const url = `https://shortenurlft.netlify.app/auth/activate/${token}`;
     
     // Store token in database (or a better method might be using Redis)
     await user.updateOne({ $set: { token } });
@@ -86,7 +86,7 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'Email not found' });
     
     const token = generateToken();
-    const url = `http://localhost:5000/auth/reset-password/${token}`;
+    const url = `https://shortenurlft.netlify.app/auth/reset-password/${token}`;
     
     // Store token in database (or use Redis)
     await user.updateOne({ $set: { resetPasswordToken: token } });
