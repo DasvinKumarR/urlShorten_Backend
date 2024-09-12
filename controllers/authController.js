@@ -44,7 +44,7 @@ export const activateUser = async (req, res) => {
   try {
     const user = await User.findOne({ token });
     if (!user) return res.status(400).json({ message: 'Invalid token' });
-    await user.updateOne({ $set: { isActive: true }, $unset: { token: 1 } });
+    await user.updateOne({ $set: { isActive: true }, $set: { token: null } });
     //res.status(200).json({ message: 'Account activated. You can now login.' });
     res.status(200).send(`
         <!DOCTYPE html>
