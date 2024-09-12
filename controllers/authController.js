@@ -44,28 +44,8 @@ export const activateUser = async (req, res) => {
   try {
     const user = await User.findOne({ token });
     if (!user) return res.status(400).json({ message: 'Invalid token' });
-    await user.updateOne({ $set: { isActive: true }, $set: { token: null } });
-    //res.status(200).json({ message: 'Account activated. You can now login.' });
-    res.status(200).send(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Account Activated</title>
-            <style>
-              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-              .container { border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
-              h1 { color: #4CAF50; }
-              p { color: #555; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Account Activated!</h1>
-              <p>You can now <a href="/login">login</a> to your account.</p>
-            </div>
-          </body>
-        </html>
-      `);
+    await user.updateOne({ $set: { isActive: true }, $unset: { token: 1 } });
+    res.status(200).json({ message: 'Account activated. You can now login.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
