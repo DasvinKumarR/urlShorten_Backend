@@ -12,7 +12,7 @@ export const registerUser = async (req, res) => {
     const token = generateToken();
     const user = await User.create({ email, firstName, lastName, password });
     
-    const url = `https://shortenurlft.netlify.app/auth/activate/${token}`;
+    const url = `http://localhost:5000/auth/activate/${token}`;
     
     // Store token in database (or a better method might be using Redis)
     await user.updateOne({ $set: { token } });
@@ -53,7 +53,7 @@ export const activateUser = async (req, res) => {
           <body>
             <div class="container">
               <h1>Account Activated!</h1>
-              <p>You can now <a href="/login">login</a> to your account.</p>
+              <p>You can now login to your account.</p>
             </div>
           </body>
         </html>
