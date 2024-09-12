@@ -23,7 +23,7 @@ export const registerUser = async (req, res) => {
     const url = `https://shortenurlft.netlify.app/auth/activate/${token}`;
     
     // Store token in database (or a better method might be using Redis)
-    await user.updateOne({ $set: { token } });
+    await user.updateOne({ $set: { token: token } });
 
     await transporter.sendMail({
       to: email,
@@ -44,7 +44,7 @@ export const activateUser = async (req, res) => {
   try {
     const user = await User.findOne({ token });
     if (!user) return res.status(400).json({ message: 'Invalid token' });
-    await user.updateOne({ $set: { isActive: true }, $unset: { token: 1 } });
+    await user.updateOne({ $set: { isActive: true }, $set: { token: null } });
     res.status(200).json({ message: 'Account activated. You can now login.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -99,7 +99,7 @@ export const resetPassword = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'Invalid token' });
     
     user.password = newPassword;
-    user.resetPasswordToken = undefined;
+    user.resetPasswordToken = null;
     await user.save();
     
     res.status(200).json({ message: 'Password updated successfully' });
