@@ -12,7 +12,7 @@ export const registerUser = async (req, res) => {
     const token = generateToken();
     const url = `https://urlshorten-backend-lme8.onrender.com/auth/activate/${token}`
     const user = await User.create({email, firstName, lastName, password});
-    await user.updateOne({ $set: { token } });
+    await user.updateOne({ $set: { ActivationToken : token } });
     await transporter.sendMail({
       to:email,
       subject:"Activate your account",
