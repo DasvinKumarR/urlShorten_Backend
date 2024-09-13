@@ -10,7 +10,7 @@ export const registerUser = async (req, res) => {
   const { email, firstName, lastName, password } = req.body;
   try {
     const token = generateToken();
-    const url = `https://shortenurlft.netlify.app/auth/activate/${token}`
+    const url = `https://urlshorten-backend-lme8.onrender.com/auth/activate/${token}`
     await User.create({email, firstName, lastName, password});
     await transporter.sendMail({
       to:email,
