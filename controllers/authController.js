@@ -84,7 +84,7 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'Email not found' });
     
     const token = generateToken();
-    const url = `https://shortenurlft.netlify.app/auth/reset-password/${token}`;
+    const url = `https://shortenurlft.netlify.app/reset-password/${token}`;
     
     // Store token in database (or use Redis)
     await user.updateOne({ $set: { resetPasswordToken: token } });
