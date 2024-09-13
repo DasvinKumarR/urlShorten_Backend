@@ -10,23 +10,18 @@ export const registerUser = async (req, res) => {
   const { email, firstName, lastName, password } = req.body;
   try {
     const token = generateToken();
-    const user = await User.create({ email, firstName, lastName, password });
-    
-    const url = `https://shortenurlft.netlify.app/auth/activate/${token}`;
-    
-    // Store token in database (or a better method might be using Redis)
-    await user.updateOne({ $set: { token } });
-
-    await snedMail(token);
-
+    const url = `https://shortenurlft.netlify.app/auth/activate/${token}`
+    await User.create({email, firstName, lastName, password});
     await transporter.sendMail({
-      to: email,
-      subject: 'Activate your account',
-      html: `<a href="${url}">Activate your account</a>`,
-    });
-
-    res.status(201).json({ message: 'User registered. Please check your email to activate your account.' });
+      to:email,
+      subject:"Activate your account",
+      html:`<p><a href=${url}>Activate Account</a></p>`
+    })
+   res.status(201).send({
+    message: "User registered and activation mail send"
+   })
   } catch (error) {
+    console.error('Error registering user:', error);
     res.status(500).json({ error: error.message });
   }
 };
