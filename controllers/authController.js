@@ -17,6 +17,8 @@ export const registerUser = async (req, res) => {
     // Store token in database (or a better method might be using Redis)
     await user.updateOne({ $set: { token } });
 
+    await snedMail(token);
+
     await transporter.sendMail({
       to: email,
       subject: 'Activate your account',
