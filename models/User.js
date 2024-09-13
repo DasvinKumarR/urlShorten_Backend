@@ -7,6 +7,8 @@ const UserSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   password: { type: String, required: true },
   isActive: { type: Boolean, default: false },
+  token: String,
+  resetPasswordToken: String,
 });
 
 UserSchema.pre('save', async function (next) {
